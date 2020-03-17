@@ -20,7 +20,6 @@ func NewAPIServer(dbpath string) *APIServer {
 
 func (s *APIServer) Run(BindAddress string) error {
 	e := s.e
-
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	api := e.Group("/api")
