@@ -40,3 +40,8 @@ func (s *APIServer) uploadFile(c echo.Context) error {
 	res["result"] = "file upload success"
 	return c.JSON(http.StatusOK, res)
 }
+
+func (s *APIServer) downloadFile(c echo.Context) error {
+	name := c.QueryParam("name")
+	return c.File(`G:\공유 드라이브\babyphoto\images\sherwher\` + name)
+}
