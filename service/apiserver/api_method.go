@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -10,6 +11,18 @@ import (
 )
 
 func (s *APIServer) Connect(c echo.Context) error {
+	return c.JSON(http.StatusOK, nil)
+}
+
+type UserInfo struct {
+	UserNum int
+}
+
+func (s *APIServer) UserList(c echo.Context) error {
+
+	var version string
+	s.db.QueryRow("SELECT VERSION()").Scan(&version)
+	fmt.Println("Connected to:", version)
 	return c.JSON(http.StatusOK, nil)
 }
 

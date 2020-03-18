@@ -1,19 +1,21 @@
 package apiserver
 
 import (
+	"database/sql"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 type APIServer struct {
-	e      *echo.Echo
-	dbpath string
+	e  *echo.Echo
+	db *sql.DB
 }
 
-func NewAPIServer(dbpath string) *APIServer {
+func NewAPIServer(db *sql.DB) *APIServer {
 	s := &APIServer{
-		e:      echo.New(),
-		dbpath: dbpath,
+		e:  echo.New(),
+		db: db,
 	}
 	return s
 }
@@ -23,9 +25,12 @@ func (s *APIServer) Run(BindAddress string) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	api := e.Group("/api")
+	user := api.Group("/user")
+	user.GET("/userList", s.UserList)
 	file := api.Group("/files")
 	file.GET("/", s.Connect)
 	file.POST("/upload", s.uploadFile)
 	file.GET("/download", s.downloadFile)
+
 	return s.e.Start(BindAddress)
 }
