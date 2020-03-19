@@ -55,17 +55,15 @@ func (s *APIServer) RegistUser(c echo.Context) error {
 			}
 		}
 	}
-	res := map[string]interface{}{}
-	res["result"] = response
+	res := util.ReturnMap(response)
 	return c.JSON(http.StatusOK, res)
 }
 
 func (s *APIServer) UserList(c echo.Context) error {
 	userinfos, err := s.db.AllUserList()
 	util.CheckError("UserList ::: ", err)
-	res := map[string]interface{}{}
 	response := map[string]interface{}{}
 	response["userList"] = userinfos
-	res["result"] = response
+	res := util.ReturnMap(response)
 	return c.JSON(http.StatusOK, res)
 }

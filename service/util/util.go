@@ -20,3 +20,9 @@ func CurrentDateTime() string {
 		t.Hour(), t.Minute(), t.Second())
 	return formatted
 }
+
+func ReturnMap(result interface{}) interface{} {
+	response := map[string]interface{}{}
+	response["result"] = result
+	return response
+}
