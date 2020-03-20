@@ -1,5 +1,7 @@
 package model
 
+type GroupNextVal int
+
 type GroupInfo struct {
 	GroupNum       int
 	GroupName      string

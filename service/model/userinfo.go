@@ -7,4 +7,5 @@ type UserInfo struct {
 	UserNickName string
 	UserName     string
 	UserRegDtm   string
+	UserProfile  string
 }

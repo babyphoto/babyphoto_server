@@ -10,7 +10,7 @@ import (
 )
 
 func MakeFolder(name string) error {
-	err := os.Mkdir(`G:\공유 드라이브\babyphoto\images\sherwher\`+name, 0777)
+	err := os.Mkdir(`G:\공유 드라이브\babyphoto\images\`+name, 0777)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 	}
 	defer src.Close()
 
-	dst, err := os.Create(`G:\공유 드라이브\babyphoto\images\sherwher\` + file.Filename)
+	dst, err := os.Create(`G:\공유 드라이브\babyphoto\images\` + file.Filename)
 	if err != nil {
 		return err
 	}
@@ -47,5 +47,5 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 
 func (s *APIServer) DownloadFile(c echo.Context) error {
 	name := c.QueryParam("name")
-	return c.File(`G:\공유 드라이브\babyphoto\images\sherwher\` + name)
+	return c.File(`G:\공유 드라이브\babyphoto\images\` + name)
 }
