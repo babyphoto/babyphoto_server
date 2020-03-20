@@ -66,17 +66,17 @@ func (s *APIServer) RegistUser(c echo.Context) error {
 }
 
 func (s *APIServer) UpdateUserNickName(c echo.Context) error {
-	UserNum := c.FormValue("UserNum")
+	UserNum := c.FormValue("userNum")
 	if len(UserNum) == 0 {
-		return c.JSON(http.StatusBadRequest, "UserNum가 없습니다.")
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
 	}
 	userNum, err := strconv.Atoi(UserNum)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "UserNum형식이 잘못되었습니다")
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
 	}
-	UserNickName := c.FormValue("UserNickName")
+	UserNickName := c.FormValue("userNickName")
 	if len(UserNickName) == 0 {
-		return c.JSON(http.StatusBadRequest, "UserNickName이 없습니다.")
+		return c.JSON(http.StatusBadRequest, "userNickName이 없습니다.")
 	}
 	count, err := s.db.IsExistNickName(UserNickName)
 	util.CheckError("isExistNickName ::: ", err)

@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -71,6 +72,8 @@ func (s *APIServer) GroupList(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
 	}
+
+	fmt.Println(UserNum)
 
 	MyGroupList, err := s.db.MyGroupList(userNum)
 	util.CheckError("Group_MyGroupList ::: ", err)
