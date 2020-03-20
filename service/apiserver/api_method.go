@@ -22,6 +22,8 @@ func (s *APIServer) Run(BindAddress string) error {
 
 	group := api.Group("/group")
 	group.POST("/createGroup", s.CreateGroup)
+	group.POST("/deleteGroup", s.DeleteGroup)
+	group.GET("/groupList", s.GroupList)
 
 	file := api.Group("/files")
 	file.GET("/download", s.DownloadFile)
