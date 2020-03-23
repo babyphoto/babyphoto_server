@@ -27,7 +27,8 @@ func (s *APIServer) Run(BindAddress string) error {
 
 	file := api.Group("/files")
 	file.GET("/download", s.DownloadFile)
-	file.POST("/upload", s.UploadFile)
+	file.POST("/upload", s.UploadFiles)
+	file.GET("/fileList", s.FileList)
 
 	return s.e.Start(BindAddress)
 }

@@ -26,6 +26,19 @@ func (db *BabyPhotoDB) IsExistNickName(UserNickName string) (int, error) {
 	return count, nil
 }
 
+func (db *BabyPhotoDB) GetUserWithUserNum(UserNum int) (model.UserInfo, error) {
+	rows, err := db.DB.Query("SELECT * FROM UserInfo WHERE UserNum=?", UserNum)
+	defer rows.Close()
+	if err != nil {
+		return model.UserInfo{}, err
+	}
+	userinfo := model.UserInfo{}
+	for rows.Next() {
+		rows.Scan(&userinfo.UserNum, &userinfo.UserCode, &userinfo.UserType, &userinfo.UserNickName, &userinfo.UserName, &userinfo.UserRegDtm, &userinfo.UserProfile)
+	}
+	return userinfo, nil
+}
+
 func (db *BabyPhotoDB) GetUser(m model.UserInfo) (model.UserInfo, error) {
 	rows, err := db.DB.Query("SELECT * FROM UserInfo WHERE UserType=? AND UserCode=?", m.UserType, m.UserCode)
 	defer rows.Close()
@@ -83,7 +96,7 @@ func (db *BabyPhotoDB) AllUserList() ([]model.UserInfo, error) {
 }
 
 func (db *BabyPhotoDB) SearchUserList(UserNickName string) ([]model.UserInfo, error) {
-	rows, err := db.DB.Query("SELECT * FROM babyphoto.UserInfo WHERE UserNickName like CONCAT('%',?,'%')", UserNickName)
+	rows, err := db.DB.Query("SELECT * FROM babyphoto.UserInfo WHERE UserNickName like CONCAT('%',?,'%') AND UserNum <> 1", UserNickName)
 	defer rows.Close()
 	if err != nil {
 		return nil, err

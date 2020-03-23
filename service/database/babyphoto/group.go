@@ -6,7 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func (db *BabyPhotoDB) NextSerialNum() (int, error) {
+func (db *BabyPhotoDB) GroupNextSerialNum() (int, error) {
 	count := 0
 	err := db.DB.QueryRow(`
 		SELECT MAX(GroupNum) + 1 as count FROM GroupInfo
@@ -48,7 +48,7 @@ func (db *BabyPhotoDB) GroupUserInfo(UserNum int, GroupNum int) (model.GroupUser
 }
 
 func (db *BabyPhotoDB) CreateGroup(UserNum int, GroupName string) (int64, error) {
-	NextID, err := db.NextSerialNum()
+	NextID, err := db.GroupNextSerialNum()
 	if err != nil {
 		return -1, err
 	}
