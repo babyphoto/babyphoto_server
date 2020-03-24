@@ -167,8 +167,9 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 			B.AbleDelete as AbleDelete,
 			B.AbleView as AbleView,
 			C.count as GroupPeoPleCount,
-			D.count as GroupFileCount
-		FROM GroupInfo A, GroupUserInfo B, (
+			D.count as GroupFileCount,
+			E.FilePath as FilePath
+			FROM GroupInfo A, GroupUserInfo B, (
 			SELECT 
 				MAX(count) as count,
 				GroupNum
@@ -193,7 +194,7 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 				WHERE B.GroupNum = A.GroupNum     
 			) A
 			GROUP BY A.GroupNum
-		) C, (
+			) C, (
 			SELECT 
 				MAX(count) as count,
 				GroupNum
@@ -218,13 +219,47 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 				WHERE B.GroupNum = A.GroupNum
 			) A
 			GROUP BY A.GroupNum
-		) D
-		WHERE B.GroupNum = A.GroupNum
-		AND B.GroupNum = C.GroupNum
-		AND B.GroupNum = D.GroupNum
-		AND B.UserNum = ?
-		AND B.IsAdmin = 'Y'
-		ORDER BY A.GroupRegDtm
+			) D, (
+				SELECT 
+				MAX(FilePath) as FilePath,
+				GroupNum
+				FROM (
+					SELECT
+					A.FilePath as FilePath,
+					B.GroupNum as GroupNum
+					FROM FileInfo A, GroupFileInfo B
+					WHERE A.FileNum = B.FileNum
+					AND B.GFDelete <> 'Y'
+					AND A.FileNum IN (
+						SELECT 
+							MAX(B.FileNum) AS FileNum
+						FROM GroupFileInfo A, FileInfo B
+						WHERE GroupNum IN (
+							SELECT
+								B.GroupNum
+							FROM GroupInfo A, GroupUserInfo B
+							WHERE B.GroupNum = A.GroupNum
+							AND B.GroupNum
+						)
+						AND A.FileNum = B.FileNum
+						GROUP BY GroupNum
+					)
+					UNION ALL
+					SELECT
+						'' as FilePath,
+						B.GroupNum as GroupNum
+					FROM GroupInfo A, GroupUserInfo B
+					WHERE B.GroupNum = A.GroupNum
+				) A
+				GROUP BY A.GroupNum
+			) E
+			WHERE B.GroupNum = A.GroupNum
+			AND B.GroupNum = C.GroupNum
+			AND B.GroupNum = D.GroupNum
+			AND B.GroupNum = E.GroupNum
+			AND B.UserNum = ?
+			AND B.IsAdmin = 'Y'
+			ORDER BY A.GroupRegDtm
 	`, UserNum)
 	defer rows.Close()
 	if err != nil {
@@ -233,7 +268,7 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 	groupList := []model.GroupList{}
 	for rows.Next() {
 		groupModel := model.GroupList{}
-		rows.Scan(&groupModel.GroupNum, &groupModel.GroupName, &groupModel.IsAdmin, &groupModel.AbleUpload, &groupModel.AbleDelete, &groupModel.AbleView, &groupModel.GroupPeopleCount, &groupModel.GroupFileCount)
+		rows.Scan(&groupModel.GroupNum, &groupModel.GroupName, &groupModel.IsAdmin, &groupModel.AbleUpload, &groupModel.AbleDelete, &groupModel.AbleView, &groupModel.GroupPeopleCount, &groupModel.GroupFileCount, &groupModel.FilePath)
 		groupList = append(groupList, groupModel)
 	}
 	return groupList, nil
@@ -249,8 +284,9 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 			B.AbleDelete as AbleDelete,
 			B.AbleView as AbleView,
 			C.count as GroupPeoPleCount,
-			D.count as GroupFileCount
-		FROM GroupInfo A, GroupUserInfo B, (
+			D.count as GroupFileCount,
+			E.FilePath as FilePath
+			FROM GroupInfo A, GroupUserInfo B, (
 			SELECT 
 				MAX(count) as count,
 				GroupNum
@@ -275,7 +311,7 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 				WHERE B.GroupNum = A.GroupNum     
 			) A
 			GROUP BY A.GroupNum
-		) C, (
+			) C, (
 			SELECT 
 				MAX(count) as count,
 				GroupNum
@@ -300,13 +336,47 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 				WHERE B.GroupNum = A.GroupNum
 			) A
 			GROUP BY A.GroupNum
-		) D
-		WHERE B.GroupNum = A.GroupNum
-		AND B.GroupNum = C.GroupNum
-		AND B.GroupNum = D.GroupNum
-		AND B.UserNum = ?
-		AND B.IsAdmin = 'N'
-		ORDER BY A.GroupRegDtm
+			) D, (
+				SELECT 
+				MAX(FilePath) as FilePath,
+				GroupNum
+				FROM (
+					SELECT
+					A.FilePath as FilePath,
+					B.GroupNum as GroupNum
+					FROM FileInfo A, GroupFileInfo B
+					WHERE A.FileNum = B.FileNum
+					AND B.GFDelete <> 'Y'
+					AND A.FileNum IN (
+						SELECT 
+							MAX(B.FileNum) AS FileNum
+						FROM GroupFileInfo A, FileInfo B
+						WHERE GroupNum IN (
+							SELECT
+								B.GroupNum
+							FROM GroupInfo A, GroupUserInfo B
+							WHERE B.GroupNum = A.GroupNum
+							AND B.GroupNum
+						)
+						AND A.FileNum = B.FileNum
+						GROUP BY GroupNum
+					)
+					UNION ALL
+					SELECT
+						'' as FilePath,
+						B.GroupNum as GroupNum
+					FROM GroupInfo A, GroupUserInfo B
+					WHERE B.GroupNum = A.GroupNum
+				) A
+				GROUP BY A.GroupNum
+			) E
+			WHERE B.GroupNum = A.GroupNum
+			AND B.GroupNum = C.GroupNum
+			AND B.GroupNum = D.GroupNum
+			AND B.GroupNum = E.GroupNum
+			AND B.UserNum = ?
+			AND B.IsAdmin = 'N'
+			ORDER BY A.GroupRegDtm
 	`, UserNum)
 	defer rows.Close()
 	if err != nil {
@@ -315,7 +385,7 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 	groupList := []model.GroupList{}
 	for rows.Next() {
 		groupModel := model.GroupList{}
-		rows.Scan(&groupModel.GroupNum, &groupModel.GroupName, &groupModel.IsAdmin, &groupModel.AbleUpload, &groupModel.AbleDelete, &groupModel.AbleView, &groupModel.GroupPeopleCount, &groupModel.GroupFileCount)
+		rows.Scan(&groupModel.GroupNum, &groupModel.GroupName, &groupModel.IsAdmin, &groupModel.AbleUpload, &groupModel.AbleDelete, &groupModel.AbleView, &groupModel.GroupPeopleCount, &groupModel.GroupFileCount, &groupModel.FilePath)
 		groupList = append(groupList, groupModel)
 	}
 	return groupList, nil

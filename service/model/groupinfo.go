@@ -28,4 +28,5 @@ type GroupList struct {
 	AbleView         string
 	GroupPeopleCount int
 	GroupFileCount   int
+	FilePath         string
 }

@@ -86,6 +86,7 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 
 		ss := strings.Split(file.Filename, ".")
 		FileExtention := ss[len(ss)-1]
+
 		result, err := s.db.InsertFile(userNum, groupNum, file.Filename, FilePath+file.Filename, FileExtention)
 		util.CheckError("file_os.Create ::: ", err)
 		if result < 0 {
@@ -101,11 +102,35 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 func (s *APIServer) UploadFile(c echo.Context) error {
 	log.Println("upload")
 
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
+	fileName := c.FormValue("fileName")
+	if len(fileName) == 0 {
+		return c.JSON(http.StatusBadRequest, "fileName가 없습니다.")
+	}
+
+	form, err := c.MultipartForm()
+	util.CheckError("file_MultipartForm ::: ", err)
+	files := form.File["files"]
+	fmt.Println(files)
+	isSuccess := false
+	fmt.Println(isSuccess)
+	UserInfo, err := s.db.GetUserWithUserNum(userNum)
+	util.CheckError("file_InsertFile ::: ", err)
+
+	FilePath := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\`
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
-	log.Println("upload" + file.Filename)
 
 	src, err := file.Open()
 	if err != nil {
@@ -113,7 +138,7 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 	}
 	defer src.Close()
 
-	dst, err := os.Create(`G:\공유 드라이브\babyphoto\images\` + file.Filename)
+	dst, err := os.Create(FilePath + fileName)
 	if err != nil {
 		return err
 	}
