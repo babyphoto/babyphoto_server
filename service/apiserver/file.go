@@ -74,10 +74,15 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 		util.CheckError("file_file.Open() ::: ", err)
 		defer src.Close()
 
-		fmt.Println(file.Filename)
+		// x, err := exif.Decode(src)
+		// util.CheckError("file_os.Create_Decode ::: ", err)
+		// tm, _ := x.DateTime()
+
+		// log.Println(x, tm)
+		log.Println(file.Filename)
 
 		dst, err := os.Create(FilePath + file.Filename)
-		util.CheckError("file_os.Create ::: ", err)
+		util.CheckError("file_os.Create_Create ::: ", err)
 		defer dst.Close()
 
 		if _, err = io.Copy(dst, src); err != nil {
@@ -88,7 +93,7 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 		FileExtention := ss[len(ss)-1]
 
 		result, err := s.db.InsertFile(userNum, groupNum, file.Filename, FilePath+file.Filename, FileExtention)
-		util.CheckError("file_os.Create ::: ", err)
+		util.CheckError("file_os.Create_InsertFile ::: ", err)
 		if result < 0 {
 			return c.JSON(http.StatusOK, "Upload fail")
 		}

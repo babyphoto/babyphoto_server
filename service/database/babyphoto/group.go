@@ -89,6 +89,37 @@ func (db *BabyPhotoDB) CreateGroup(UserNum int, GroupName string) (int64, error)
 	return 1, nil
 }
 
+func (db *BabyPhotoDB) UpdateGroup(UserNum int, GroupNum int, GroupName string) (int64, error) {
+	GI, err := db.GroupUserInfo(UserNum, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+
+	if GI.AbleUpload != "Y" {
+		return 0, nil
+	}
+
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+		UPDATE GroupInfo SET GroupName=? WHERE GroupNum=?
+	`, GroupName, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return 1, nil
+}
+
 func (db *BabyPhotoDB) DeleteGroup(UserNum int, GroupNum int) (int64, error) {
 	GI, err := db.GroupUserInfo(UserNum, GroupNum)
 	if err != nil {
@@ -120,6 +151,28 @@ func (db *BabyPhotoDB) DeleteGroup(UserNum int, GroupNum int) (int64, error) {
 	_, err = tx.Exec(`
 		DELETE FROM GroupInfo WHERE GroupNum=?
 	`, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return 1, nil
+}
+
+func (db *BabyPhotoDB) LeaveGroup(UserNum int, GroupNum int) (int64, error) {
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+		DELETE FROM GroupUserInfo WHERE GroupNum=? AND UserNum=?
+	`, GroupNum, UserNum)
 	if err != nil {
 		return -1, err
 	}

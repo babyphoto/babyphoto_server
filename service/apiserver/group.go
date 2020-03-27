@@ -33,6 +33,41 @@ func (s *APIServer) CreateGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Create Success")
 }
 
+func (s *APIServer) UpdateGroup(c echo.Context) error {
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	GroupName := c.FormValue("groupName")
+	if len(GroupName) == 0 {
+		GroupName = ""
+	}
+
+	result, err := s.db.UpdateGroup(userNum, groupNum, GroupName)
+	util.CheckError("Group_UpdateGroup ::: ", err)
+	if result < 0 {
+		return c.JSON(http.StatusOK, "Update fail")
+	} else if result == 0 {
+		return c.JSON(http.StatusOK, "Update fail - Lack of authority")
+	}
+
+	return c.JSON(http.StatusOK, "Update Success")
+}
+
 func (s *APIServer) DeleteGroup(c echo.Context) error {
 	UserNum := c.FormValue("userNum")
 	if len(UserNum) == 0 {
@@ -61,6 +96,36 @@ func (s *APIServer) DeleteGroup(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Delete Success")
+}
+
+func (s *APIServer) LeaveGroup(c echo.Context) error {
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	result, err := s.db.LeaveGroup(userNum, groupNum)
+	util.CheckError("Group_LeaveGroup ::: ", err)
+	if result < 0 {
+		return c.JSON(http.StatusOK, "Leave fail")
+	} else if result == 0 {
+		return c.JSON(http.StatusOK, "Leave fail - Lack of authority")
+	}
+
+	return c.JSON(http.StatusOK, "Leave Success")
 }
 
 func (s *APIServer) GroupList(c echo.Context) error {
