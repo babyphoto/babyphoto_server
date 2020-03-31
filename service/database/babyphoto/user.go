@@ -96,7 +96,7 @@ func (db *BabyPhotoDB) AllUserList() ([]model.UserInfo, error) {
 }
 
 func (db *BabyPhotoDB) SearchUserList(UserNickName string) ([]model.UserInfo, error) {
-	rows, err := db.DB.Query("SELECT * FROM babyphoto.UserInfo WHERE UserNickName like CONCAT('%',?,'%') AND UserNum <> 1", UserNickName)
+	rows, err := db.DB.Query("SELECT * FROM babyphoto.UserInfo WHERE UserNickName=? AND UserNum <> 1", UserNickName)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -105,6 +105,21 @@ func (db *BabyPhotoDB) SearchUserList(UserNickName string) ([]model.UserInfo, er
 	for rows.Next() {
 		userinfo := model.UserInfo{}
 		rows.Scan(&userinfo.UserNum, &userinfo.UserCode, &userinfo.UserType, &userinfo.UserNickName, &userinfo.UserName, &userinfo.UserRegDtm, &userinfo.UserProfile)
+		userinfos = append(userinfos, userinfo)
+	}
+	return userinfos, nil
+}
+
+func (db *BabyPhotoDB) GroupUserList(GroupNum int) ([]model.GroupUserInfo, error) {
+	rows, err := db.DB.Query("SELECT * FROM GroupUserInfo WHERE GroupNum=?", GroupNum)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	userinfos := []model.GroupUserInfo{}
+	for rows.Next() {
+		userinfo := model.GroupUserInfo{}
+		rows.Scan(&userinfo.UserNum, &userinfo.GroupNum, &userinfo.IsAdmin, &userinfo.AbleUpload, &userinfo.AbleDelete, &userinfo.AbleView, &userinfo.GUJoinDtm, &userinfo.GUUpdateDtm)
 		userinfos = append(userinfos, userinfo)
 	}
 	return userinfos, nil

@@ -72,3 +72,33 @@ func (db *BabyPhotoDB) FileList(GroupNum int) ([]model.FileInfo, error) {
 	}
 	return fileList, nil
 }
+
+func (db *BabyPhotoDB) UpdateFile(UserNum int, FileNum int, GroupNum int) (int, error) {
+	GI, err := db.GroupUserInfo(UserNum, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+	if GI.AbleDelete != "Y" {
+		return 0, nil
+	}
+
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+		UPDATE GroupFileInfo SET GFDelete='Y', GFUpdateDtm=? WHERE FileNum=? AND GroupNum=?
+	`, util.CurrentDateTime(), FileNum, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return 1, nil
+}

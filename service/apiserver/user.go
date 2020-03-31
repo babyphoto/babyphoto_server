@@ -1,6 +1,8 @@
 package apiserver
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -25,6 +27,11 @@ func (s *APIServer) RegistUser(c echo.Context) error {
 	UserProfile := c.FormValue("userProfile")
 
 	log.Println(UserCode, UserType, UserNickName, UserName, UserRegDtm, UserProfile)
+
+	h := sha1.New()
+	h.Write([]byte(UserType + "." + UserCode))
+	bs := h.Sum(nil)
+	UserNickName = fmt.Sprintf("%x", bs[0:3])
 
 	userinfo := model.UserInfo{
 		UserCode:     UserCode,
@@ -101,13 +108,35 @@ func (s *APIServer) UserSearchWithNickName(c echo.Context) error {
 	userinfos, err := s.db.SearchUserList(UserNickName)
 	util.CheckError("UserSearchWithNickName.SearchUserList :::", err)
 	response := map[string]interface{}{}
-	response["userList"] = userinfos
+	if len(userinfos) == 0 {
+		response["userInfo"] = nil
+	} else {
+		response["userInfo"] = userinfos[0]
+	}
 	res := util.ReturnMap(response)
 	return c.JSON(http.StatusOK, res)
 }
 
 func (s *APIServer) UserList(c echo.Context) error {
 	userinfos, err := s.db.AllUserList()
+	util.CheckError("UserList ::: ", err)
+	response := map[string]interface{}{}
+	response["userList"] = userinfos
+	res := util.ReturnMap(response)
+	return c.JSON(http.StatusOK, res)
+}
+
+func (s *APIServer) GroupUserList(c echo.Context) error {
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	userinfos, err := s.db.GroupUserList(groupNum)
 	util.CheckError("UserList ::: ", err)
 	response := map[string]interface{}{}
 	response["userList"] = userinfos

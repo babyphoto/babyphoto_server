@@ -256,7 +256,8 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 					count(*) as count,
 					GroupNum  as GroupNum
 				FROM GroupFileInfo
-				WHERE GroupNum IN (
+				WHERE GFDelete <> 'Y'
+				  AND GroupNum IN (
 					SELECT
 						B.GroupNum
 					FROM GroupInfo A, GroupUserInfo B
@@ -373,7 +374,8 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 					count(*) as count,
 					GroupNum  as GroupNum
 				FROM GroupFileInfo
-				WHERE GroupNum IN (
+				WHERE GFDelete <> 'Y'
+				  AND GroupNum IN (
 					SELECT
 						B.GroupNum
 					FROM GroupInfo A, GroupUserInfo B

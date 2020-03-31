@@ -161,3 +161,44 @@ func (s *APIServer) DownloadFile(c echo.Context) error {
 	path := c.QueryParam("path")
 	return c.File(path)
 }
+
+func (s *APIServer) DeleteFile(c echo.Context) error {
+
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	FileNum := c.FormValue("fileNum")
+	if len(FileNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "fileNum가 없습니다.")
+	}
+	fileNum, err := strconv.Atoi(FileNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "fileNum형식이 잘못되었습니다")
+	}
+
+	result, err := s.db.UpdateFile(userNum, fileNum, groupNum)
+	util.CheckError("Group_InviteGroup ::: ", err)
+
+	if result < 0 {
+		return c.JSON(http.StatusOK, "Delete fail")
+	} else if result == 0 {
+		return c.JSON(http.StatusOK, "Delete fail - Lack of authority")
+	}
+
+	return c.JSON(http.StatusOK, "Delete Success")
+}
