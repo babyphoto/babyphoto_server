@@ -207,6 +207,11 @@ func (db *BabyPhotoDB) InviteGroup(UserNum int, GroupNum int, InviteUserNum int,
 		return -1, err
 	}
 
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
 	return 1, nil
 }
 
