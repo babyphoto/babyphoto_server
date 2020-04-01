@@ -16,7 +16,7 @@ func (db *BabyPhotoDB) FileNextSerialNum() (int, error) {
 	return count, nil
 }
 
-func (db *BabyPhotoDB) InsertFile(UserNum int, GroupNum int, FileName string, FilePath string, FileExtention string) (int, error) {
+func (db *BabyPhotoDB) InsertFile(UserNum int, GroupNum int, FileName string, FilePath string, FileThumbnail string, FileExtention string) (int, error) {
 	NextID, err := db.FileNextSerialNum()
 	if err != nil {
 		return -1, err
@@ -29,8 +29,8 @@ func (db *BabyPhotoDB) InsertFile(UserNum int, GroupNum int, FileName string, Fi
 	defer tx.Rollback()
 
 	_, err = tx.Exec(`
-		INSERT INTO FileInfo (FileNum, UserNum, FileName, FilePath, FileExtention, FileRegDtm) VALUES (?, ?, ?, ?, ?, ?)
-	`, NextID, UserNum, FileName, FilePath, FileExtention, util.CurrentDateTime())
+		INSERT INTO FileInfo (FileNum, UserNum, FileName, FilePath, FileThumbnail, FileExtention, FileRegDtm) VALUES (?, ?, ?, ?, ?, ?, ?)
+	`, NextID, UserNum, FileName, FilePath, FileThumbnail, FileExtention, util.CurrentDateTime())
 	if err != nil {
 		return -1, err
 	}
@@ -67,7 +67,7 @@ func (db *BabyPhotoDB) FileList(GroupNum int) ([]model.FileInfo, error) {
 	fileList := []model.FileInfo{}
 	for rows.Next() {
 		fileModel := model.FileInfo{}
-		rows.Scan(&fileModel.FileNum, &fileModel.UserNum, &fileModel.FileName, &fileModel.FilePath, &fileModel.FileExtention, &fileModel.FileRegDtm)
+		rows.Scan(&fileModel.FileNum, &fileModel.UserNum, &fileModel.FileName, &fileModel.FilePath, &fileModel.FileThumbnail, &fileModel.FileExtention, &fileModel.FileRegDtm)
 		fileList = append(fileList, fileModel)
 	}
 	return fileList, nil

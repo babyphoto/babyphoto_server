@@ -284,7 +284,7 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 				GroupNum
 				FROM (
 					SELECT
-					A.FilePath as FilePath,
+					A.FileThumbnail as FilePath,
 					B.GroupNum as GroupNum
 					FROM FileInfo A, GroupFileInfo B
 					WHERE A.FileNum = B.FileNum
@@ -403,7 +403,7 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 				GroupNum
 				FROM (
 					SELECT
-					A.FilePath as FilePath,
+					A.FileThumbnail as FilePath,
 					B.GroupNum as GroupNum
 					FROM FileInfo A, GroupFileInfo B
 					WHERE A.FileNum = B.FileNum

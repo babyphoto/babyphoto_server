@@ -18,6 +18,10 @@ func MakeFolder(name string) error {
 	if err != nil {
 		return err
 	}
+	err = os.Mkdir(`G:\공유 드라이브\babyphoto\images\`+name+`\thumbnail`, 0777)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -68,7 +72,7 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 	util.CheckError("file_InsertFile ::: ", err)
 
 	FilePath := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\`
-
+	FileThumbnail := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\thumbnail\`
 	for _, file := range files {
 		src, err := file.Open()
 		util.CheckError("file_file.Open() ::: ", err)
@@ -92,7 +96,7 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 		ss := strings.Split(file.Filename, ".")
 		FileExtention := ss[len(ss)-1]
 
-		result, err := s.db.InsertFile(userNum, groupNum, file.Filename, FilePath+file.Filename, FileExtention)
+		result, err := s.db.InsertFile(userNum, groupNum, file.Filename, FilePath+file.Filename, FileThumbnail+file.Filename, FileExtention)
 		util.CheckError("file_os.Create_InsertFile ::: ", err)
 		if result < 0 {
 			return c.JSON(http.StatusOK, "Upload fail")
@@ -130,7 +134,7 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 	UserInfo, err := s.db.GetUserWithUserNum(userNum)
 	util.CheckError("file_InsertFile ::: ", err)
 
-	FilePath := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\`
+	FilePath := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\thumbnail\`
 
 	file, err := c.FormFile("file")
 	if err != nil {

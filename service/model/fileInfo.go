@@ -5,6 +5,7 @@ type FileInfo struct {
 	UserNum       int
 	FileName      string
 	FilePath      string
+	FileThumbnail string
 	FileExtention string
 	FileRegDtm    string
 }
