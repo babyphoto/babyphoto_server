@@ -125,21 +125,30 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "fileName가 없습니다.")
 	}
 
-	form, err := c.MultipartForm()
-	util.CheckError("file_MultipartForm ::: ", err)
-	files := form.File["files"]
-	fmt.Println(files)
+	fileType := c.FormValue(("fileType"))
+	if len(fileType) == 0 {
+		fileType = "image"
+	}
+
 	isSuccess := false
 	fmt.Println(isSuccess)
 	UserInfo, err := s.db.GetUserWithUserNum(userNum)
 	util.CheckError("file_InsertFile ::: ", err)
 
 	FilePath := `G:\공유 드라이브\babyphoto\images\` + UserInfo.UserType + `.` + UserInfo.UserCode + `\thumbnail\`
-
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
 	}
+
+	InsertFileName := ""
+	if fileType == "video" {
+		InsertFileName = fileName
+	} else {
+		InsertFileName = file.Filename
+	}
+
+	log.Println(InsertFileName)
 
 	src, err := file.Open()
 	if err != nil {
@@ -147,7 +156,7 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 	}
 	defer src.Close()
 
-	dst, err := os.Create(FilePath + fileName)
+	dst, err := os.Create(FilePath + InsertFileName)
 	if err != nil {
 		return err
 	}
