@@ -300,6 +300,7 @@ func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 							WHERE B.GroupNum = A.GroupNum
 							AND B.GroupNum
 						)
+						AND A.GFDelete = 'N'
 						AND A.FileNum = B.FileNum
 						GROUP BY GroupNum
 					)
@@ -418,6 +419,7 @@ func (db *BabyPhotoDB) InvitedGroupList(UserNum int) ([]model.GroupList, error) 
 							WHERE B.GroupNum = A.GroupNum
 							AND B.GroupNum
 						)
+						AND A.GFDelete = 'N'
 						AND A.FileNum = B.FileNum
 						GROUP BY GroupNum
 					)
