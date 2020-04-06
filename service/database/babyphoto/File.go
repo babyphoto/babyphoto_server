@@ -50,7 +50,14 @@ func (db *BabyPhotoDB) InsertFile(UserNum int, GroupNum int, FileName string, Fi
 	return 1, nil
 }
 
-func (db *BabyPhotoDB) FileList(GroupNum int) ([]model.FileInfo, error) {
+func (db *BabyPhotoDB) FileList(UserNum int, GroupNum int) ([]model.FileInfo, error) {
+	GI, err := db.GroupUserInfo(UserNum, GroupNum)
+	if err != nil {
+		return nil, err
+	}
+	if GI.AbleView != "Y" {
+		return nil, nil
+	}
 	rows, err := db.DB.Query(`
 		SELECT
 			A.*

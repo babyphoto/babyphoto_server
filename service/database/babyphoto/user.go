@@ -124,3 +124,39 @@ func (db *BabyPhotoDB) GroupUserList(GroupNum int) ([]model.GroupUserInfo, error
 	}
 	return userinfos, nil
 }
+
+func (db *BabyPhotoDB) GroupUserDetailList(GroupNum int, SearchText string) ([]model.GroupUserList, error) {
+	rows, err := db.DB.Query(`
+		SELECT 
+			B.UserNum AS UserNum,
+			B.UserCode AS UserCode,
+			B.UserType AS UserType,
+			B.UserNickName AS UserNickName,
+			B.UserName AS UserName,
+			B.UserProfile AS UserProfile,
+			A.GroupNum AS GroupNum,
+			A.IsAdmin AS IsAdmin,
+			A.AbleUpload AS AbleUpload,
+			A.AbleDelete AS AbleDelete,
+			A.AbleView AS AbleView,
+			A.GUJoinDtm AS GUJoinDtm
+		FROM GroupUserInfo A, UserInfo B
+		WHERE A.UserNum = B.UserNum
+		  AND A.GroupNum=?
+		  AND (B.UserName LIKE CONCAT('%',?,'%') OR B.UserNickName LIKE CONCAT(?,'%'))
+		ORDER BY B.UserName
+	`, GroupNum, SearchText, SearchText)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	userinfos := []model.GroupUserList{}
+	for rows.Next() {
+		userinfo := model.GroupUserList{}
+		rows.Scan(&userinfo.UserNum, &userinfo.UserCode, &userinfo.UserType, &userinfo.UserNickName,
+			&userinfo.UserName, &userinfo.UserProfile, &userinfo.GroupNum, &userinfo.IsAdmin,
+			&userinfo.AbleUpload, &userinfo.AbleDelete, &userinfo.AbleView, &userinfo.GUJoinDtm)
+		userinfos = append(userinfos, userinfo)
+	}
+	return userinfos, nil
+}

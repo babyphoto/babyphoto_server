@@ -215,6 +215,36 @@ func (db *BabyPhotoDB) InviteGroup(UserNum int, GroupNum int, InviteUserNum int,
 	return 1, nil
 }
 
+func (db *BabyPhotoDB) ModifyGroupUser(UserNum int, GroupNum int, InviteUserNum int, AbleUpload string, AbleDelete string, AbleView string) (int64, error) {
+	GI, err := db.GroupUserInfo(UserNum, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+	if GI.IsAdmin != "Y" {
+		return 0, nil
+	}
+
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+		UPDATE GroupUserInfo SET AbleUpload = ?, AbleDelete = ?, AbleView = ?, GUUpdateDtm = ? WHERE UserNum = ? AND GroupNum = ?
+	`, AbleUpload, AbleDelete, AbleView, util.CurrentDateTime(), InviteUserNum, GroupNum)
+	if err != nil {
+		return -1, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return 1, nil
+}
+
 func (db *BabyPhotoDB) MyGroupList(UserNum int) ([]model.GroupList, error) {
 	rows, err := db.DB.Query(`
 		SELECT

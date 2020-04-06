@@ -20,12 +20,14 @@ func (s *APIServer) Run(BindAddress string) error {
 	user.POST("/updateNickName", s.UpdateUserNickName)
 	user.POST("/regist", s.RegistUser)
 	user.GET("/groupUserList", s.GroupUserList)
+	user.GET("/groupUserDetailList", s.GroupUserDetailList)
 
 	group := api.Group("/group")
 	group.POST("/createGroup", s.CreateGroup)
 	group.POST("/deleteGroup", s.DeleteGroup)
 	group.POST("/updateGroup", s.UpdateGroup)
 	group.POST("/leaveGroup", s.LeaveGroup)
+	group.POST("/modifyGroup", s.ModifyGroupUser)
 	group.GET("/groupList", s.GroupList)
 	group.POST("/inviteGroup", s.InviteGroup)
 
@@ -35,6 +37,7 @@ func (s *APIServer) Run(BindAddress string) error {
 	file.GET("/fileList", s.FileList)
 	file.POST("/thumnail", s.UploadFile)
 	file.POST("/delete", s.DeleteFile)
+	file.GET("/downloadVideo", s.DownloadVideo)
 
 	return s.e.Start(BindAddress)
 }

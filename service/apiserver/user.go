@@ -143,3 +143,28 @@ func (s *APIServer) GroupUserList(c echo.Context) error {
 	res := util.ReturnMap(response)
 	return c.JSON(http.StatusOK, res)
 }
+
+func (s *APIServer) GroupUserDetailList(c echo.Context) error {
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	SearchText := c.FormValue("searchText")
+	if len(SearchText) == 0 {
+		SearchText = ""
+	}
+
+	log.Println(groupNum, SearchText)
+
+	userinfos, err := s.db.GroupUserDetailList(groupNum, SearchText)
+	util.CheckError("UserList_GroupUserDetailList ::: ", err)
+	response := map[string]interface{}{}
+	response["userList"] = userinfos
+	res := util.ReturnMap(response)
+	return c.JSON(http.StatusOK, res)
+}

@@ -208,3 +208,58 @@ func (s *APIServer) InviteGroup(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, "Invite Success")
 }
+
+func (s *APIServer) ModifyGroupUser(c echo.Context) error {
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
+	GroupNum := c.FormValue("groupNum")
+	if len(GroupNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
+	}
+	groupNum, err := strconv.Atoi(GroupNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
+	}
+
+	InviteUserNum := c.FormValue("inviteUserNum")
+	if len(InviteUserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "inviteUserNum가 없습니다.")
+	}
+	inviteUserNum, err := strconv.Atoi(InviteUserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "inviteUserNum형식이 잘못되었습니다")
+	}
+
+	AbleUpload := c.FormValue("ableUpload")
+	if len(AbleUpload) == 0 {
+		AbleUpload = "N"
+	}
+
+	AbleDelete := c.FormValue("ableDelete")
+	if len(AbleDelete) == 0 {
+		AbleDelete = "N"
+	}
+
+	AbleView := c.FormValue("ableView")
+	if len(AbleView) == 0 {
+		AbleView = "Y"
+	}
+
+	result, err := s.db.ModifyGroupUser(userNum, groupNum, inviteUserNum, AbleUpload, AbleDelete, AbleView)
+	util.CheckError("Group_ModifyGroupUser ::: ", err)
+
+	if result < 0 {
+		return c.JSON(http.StatusOK, "Modify fail")
+	} else if result == 0 {
+		return c.JSON(http.StatusOK, "Modify fail - Lack of authority")
+	}
+
+	return c.JSON(http.StatusOK, "Modify Success")
+}

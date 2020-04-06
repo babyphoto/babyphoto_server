@@ -26,6 +26,15 @@ func MakeFolder(name string) error {
 }
 
 func (s *APIServer) FileList(c echo.Context) error {
+	UserNum := c.FormValue("userNum")
+	if len(UserNum) == 0 {
+		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
+	}
+	userNum, err := strconv.Atoi(UserNum)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "userNum형식이 잘못되었습니다")
+	}
+
 	GroupNum := c.FormValue("groupNum")
 	if len(GroupNum) == 0 {
 		return c.JSON(http.StatusBadRequest, "groupNum가 없습니다.")
@@ -35,12 +44,16 @@ func (s *APIServer) FileList(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "groupNum형식이 잘못되었습니다")
 	}
 
-	FileList, err := s.db.FileList(groupNum)
+	FileList, err := s.db.FileList(userNum, groupNum)
 	util.CheckError("Group_MyGroupList ::: ", err)
-	response := map[string]interface{}{}
-	response["fileList"] = FileList
-	res := util.ReturnMap(response)
-	return c.JSON(http.StatusOK, res)
+	if FileList == nil && err == nil {
+		return c.JSON(http.StatusOK, "Viewing fail - Lack of authority")
+	} else {
+		response := map[string]interface{}{}
+		response["fileList"] = FileList
+		res := util.ReturnMap(response)
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 func (s *APIServer) UploadFiles(c echo.Context) error {
@@ -78,11 +91,6 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 		util.CheckError("file_file.Open() ::: ", err)
 		defer src.Close()
 
-		// x, err := exif.Decode(src)
-		// util.CheckError("file_os.Create_Decode ::: ", err)
-		// tm, _ := x.DateTime()
-
-		// log.Println(x, tm)
 		log.Println(file.Filename)
 
 		dst, err := os.Create(FilePath + file.Filename)
@@ -109,8 +117,6 @@ func (s *APIServer) UploadFiles(c echo.Context) error {
 }
 
 func (s *APIServer) UploadFile(c echo.Context) error {
-	log.Println("upload")
-
 	UserNum := c.FormValue("userNum")
 	if len(UserNum) == 0 {
 		return c.JSON(http.StatusBadRequest, "userNum가 없습니다.")
@@ -130,8 +136,6 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 		fileType = "image"
 	}
 
-	isSuccess := false
-	fmt.Println(isSuccess)
 	UserInfo, err := s.db.GetUserWithUserNum(userNum)
 	util.CheckError("file_InsertFile ::: ", err)
 
@@ -172,7 +176,32 @@ func (s *APIServer) UploadFile(c echo.Context) error {
 
 func (s *APIServer) DownloadFile(c echo.Context) error {
 	path := c.QueryParam("path")
-	return c.File(path)
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	// Type, err := util.GetFileContentType(f)
+	// if err != nil {
+	// 	return err
+	// }
+
+	return c.Inline(path, f.Name())
+}
+
+func (s *APIServer) DownloadVideo(c echo.Context) error {
+	path := c.QueryParam("path")
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	Type, err := util.GetFileContentType(f)
+	if err != nil {
+		return err
+	}
+
+	return c.Stream(http.StatusOK, Type, f)
 }
 
 func (s *APIServer) DeleteFile(c echo.Context) error {
