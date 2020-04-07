@@ -95,8 +95,15 @@ func (db *BabyPhotoDB) AllUserList() ([]model.UserInfo, error) {
 	return userinfos, nil
 }
 
-func (db *BabyPhotoDB) SearchUserList(UserNickName string) ([]model.UserInfo, error) {
-	rows, err := db.DB.Query("SELECT * FROM babyphoto.UserInfo WHERE UserNickName=? AND UserNum <> 1", UserNickName)
+func (db *BabyPhotoDB) SearchUserList(SearchText string) ([]model.UserInfo, error) {
+	rows, err := db.DB.Query(`
+		SELECT 
+			* 
+		  FROM UserInfo 
+		 WHERE (UserName LIKE CONCAT('%',?,'%') OR UserNickName LIKE CONCAT(?,'%'))
+		   AND UserNum <> 1
+		 ORDER BY UserName
+	`, SearchText, SearchText)
 	defer rows.Close()
 	if err != nil {
 		return nil, err

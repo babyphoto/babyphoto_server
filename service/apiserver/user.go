@@ -100,19 +100,18 @@ func (s *APIServer) UpdateUserNickName(c echo.Context) error {
 	}
 }
 
-func (s *APIServer) UserSearchWithNickName(c echo.Context) error {
-	UserNickName := c.FormValue("userNickName")
-	if len(UserNickName) == 0 {
-		UserNickName = ""
+func (s *APIServer) UserSearch(c echo.Context) error {
+	SearchText := c.FormValue("searchText")
+	if len(SearchText) == 0 {
+		response := map[string]interface{}{}
+		response["userInfo"] = []string{}
+		res := util.ReturnMap(response)
+		return c.JSON(http.StatusOK, res)
 	}
-	userinfos, err := s.db.SearchUserList(UserNickName)
+	userinfos, err := s.db.SearchUserList(SearchText)
 	util.CheckError("UserSearchWithNickName.SearchUserList :::", err)
 	response := map[string]interface{}{}
-	if len(userinfos) == 0 {
-		response["userInfo"] = nil
-	} else {
-		response["userInfo"] = userinfos[0]
-	}
+	response["userInfo"] = userinfos
 	res := util.ReturnMap(response)
 	return c.JSON(http.StatusOK, res)
 }

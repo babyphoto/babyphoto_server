@@ -79,6 +79,6 @@ func main() {
 	}
 
 	API := apiserver.NewAPIServer(bybyPhotodb)
-	go API.Run(":38080")
+	go API.Run(":80")
 	select {}
 }

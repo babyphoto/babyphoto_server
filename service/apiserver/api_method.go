@@ -16,7 +16,7 @@ func (s *APIServer) Run(BindAddress string) error {
 
 	user := api.Group("/user")
 	user.GET("/userList", s.UserList)
-	user.GET("/userSearchWithNickName", s.UserSearchWithNickName)
+	user.GET("/userSearch", s.UserSearch)
 	user.POST("/updateNickName", s.UpdateUserNickName)
 	user.POST("/regist", s.RegistUser)
 	user.GET("/groupUserList", s.GroupUserList)
